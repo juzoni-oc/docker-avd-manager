@@ -1,0 +1,4 @@
+# docker-avd-manager runtime dependencies
+# The manager only shells out to the docker CLI, so there are no hard Python
+# third-party dependencies. The following are optional / for development:
+pytest>=7.0
