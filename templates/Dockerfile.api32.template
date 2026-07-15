@@ -1,0 +1,31 @@
+# Dockerfile template for Android API 32 AVD
+# Rendered by docker-avd-manager's TemplateEngine.
+FROM thyrlian/android-sdk:latest
+
+ENV API_LEVEL=$API_LEVEL \
+    ABI=$ABI \
+    DEVICE=$DEVICE \
+    RESOLUTION=$RESOLUTION \
+    RAM=$RAM \
+    SDCARD=$SDCARD \
+    AVD_NAME=$AVD_NAME
+
+RUN sdkmanager "platforms;android-$API_LEVEL" "system-images;android-$API_LEVEL;google_apis;$ABI" && \
+    sdkmanager --licenses
+
+RUN echo "no" | avdmanager create avd \
+    --name "$AVD_NAME" \
+    --package "system-images;android-$API_LEVEL;google_apis;$ABI" \
+    --device "$DEVICE" \
+    --sdcard "$SDCARD"
+
+EXPOSE 5555
+
+CMD ["/bin/bash", "-c", "\
+    adb start-server && \
+    emulator -avd $AVD_NAME \
+      -no-window -no-audio -no-boot-anim \
+      -gpu swiftshader_indirect \
+      -memory ${RAM%M} \
+      -skin $RESOLUTION & \
+    sleep 5 && adb wait-for-device && tail -f /dev/null"]
